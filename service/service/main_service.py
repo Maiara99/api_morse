@@ -3,67 +3,67 @@ import json
 from loguru import logger
 from service.constants import mensagens
 import pandas as pd
-import numpy as np
-
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
-class SentimentosService():
+class MorseCodeService():
 
     def __init__(self):
-        logger.debug(mensagens.INICIO_LOAD_MODEL)
-        self.load_model()
+        logger.debug(mensagens.INICIO_LOAD_SERVICO)
+        self.load_servico()
 
-    def load_model(self):
-        """"
-        Carrega o modelo VADER a ser usado
-        """
-
-        self.model = SentimentIntensityAnalyzer()
-
-        logger.debug(mensagens.FIM_LOAD_MODEL)
+    def load_servico(self):
+        logger.debug(mensagens.FIM_LOAD_SERVICO)
 
     def executar_rest(self, texts):
         response = {}
 
-        logger.debug(mensagens.INICIO_PREDICT)
+        logger.debug(mensagens.INICIO_SERVICO)
         start_time = time.time()
 
-        response_predicts = self.buscar_predicao(texts['textoMensagem'])
+        texto=" ".join(texts['textoMensagem'])
+        response_codes = self.traduzir_code(texto)
 
-        logger.debug(mensagens.FIM_PREDICT)
-        logger.debug(f"Fim de todas as predições em {time.time()-start_time}")
+        logger.debug(mensagens.FIM_SERVICO)
+        logger.debug(f"Fim de todas as conversoes em {time.time()-start_time}")
 
         df_response = pd.DataFrame(texts, columns=['textoMensagem'])
-        df_response['predict'] = response_predicts
+        df_response['conversao'] = response_codes
 
         df_response = df_response.drop(columns=['textoMensagem'])
 
         response = {
-                     "listaClassificacoes": json.loads(df_response.to_json(
+                     "listaFrases": json.loads(df_response.to_json(
                                                                             orient='records', force_ascii=False))}
 
         return response
 
-    def buscar_predicao(self, texts):
-        """
-        Pega o modelo carregado e aplica em texts
-        """
-        logger.debug('Iniciando o predict...')
-
-        response = []
-
+    def traduzir_code(self, texts):
+        logger.debug('Iniciando a codificacao...')
+        code = {
+            'A': '.-', 'B': '-...',
+            'C': '-.-.', 'D': '-..',
+            'E': '.', 'F': '..-.',
+            'G': '--.', 'H': '....',
+            'I': '..', 'J': '.---',
+            'K': '-.-', 'L': '.-..',
+            'M': '--', 'N': '-.',
+            'O': '---', 'P': '.--.',
+            'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-',
+            'U': '..-', 'V': '...-',
+            'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..',
+            '0': '-----', '1': '.----',
+            '2': '..---', '3': '...--',
+            '4': '....-', '5': '.....',
+            '6': '-....', '7': '--...',
+            '8': '---..', '9': '----.', ' ': ' '
+        }
+        response = [] 
+        
         for text in texts:
-            sentiment_dict = self.model.polarity_scores(text)
-        
-            # decide sentiment as positive, negative and neutral
-            if sentiment_dict['compound'] >= 0.05:
-                response.append("Positive")
-        
-            elif sentiment_dict['compound'] <= - 0.05:
-                response.append("Negative")
-        
-            else:
-                response.append("Neutral")
+            response += code[text.upper()]
+              
+        codemorse="".join(response)
 
-        return response
+        return codemorse

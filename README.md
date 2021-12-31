@@ -1,7 +1,3 @@
-### Exemplo de Readme para o seu projeto
-
-# api-sentimentos
-
 Projeto que sobe um Container e, neste, uma API RESTful com o Swagger
 
 ## Getting Started
@@ -21,6 +17,9 @@ docker-compose up
 
 ## Authors
 
+# api-sentimentos
 * **Patrick Luiz** - *Initial work*
-
 ## Exemplo de template copiado de: https://gist.github.com/PurpleBooth/109311bb0361f32d87a2
+
+# api-morse
+* **Maiara Lima** 
